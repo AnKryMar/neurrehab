@@ -1,0 +1,17 @@
+<!-- tasks/templates/tasks/choose_category.html -->
+{% extends 'base.html' %}
+
+{% block title %}Выбор категории{% endblock %}
+
+{% block content %}
+<h1>Выберите категорию</h1>
+<form method="POST">
+    {% csrf_token %}
+    <select name="category">
+        {% for value, display in categories %}
+        <option value="{{ value }}">{{ display }}</option>
+        {% endfor %}
+    </select>
+    <button type="submit">Начать</button>
+</form>
+{% endblock %}

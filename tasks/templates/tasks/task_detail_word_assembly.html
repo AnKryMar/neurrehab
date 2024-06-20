@@ -1,0 +1,42 @@
+<!-- tasks/templates/tasks/task_detail_word_assembly.html -->
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>Категория: {{ task.get_category_display }}</h1>
+<div>
+    <p>Составьте слово из обрывков:</p>
+    <div>
+        {% for part in word_parts %}
+            <button onclick="selectPart('{{ part }}')">{{ part }}</button>
+        {% endfor %}
+    </div>
+    <input type="text" id="assembled-word" placeholder="Собранное слово">
+</div>
+<button onclick="submitAnswer()">Проверить</button>
+<p id="feedback"></p>
+
+<script>
+    function selectPart(part) {
+        const input = document.getElementById('assembled-word');
+        input.value += part;
+    }
+
+    function submitAnswer() {
+        const assembledWord = document.getElementById('assembled-word').value;
+        const csrfToken = '{{ csrf_token }}';
+
+        fetch(window.location.href, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken,
+            },
+            body: JSON.stringify({ answer: assembledWord }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('feedback').innerText = data.feedback;
+        });
+    }
+</script>
+{% endblock %}

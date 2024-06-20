@@ -1,0 +1,140 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    .task-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 20px;
+        max-width: 600px;
+        margin: auto;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .task-container img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 8px;
+        margin-bottom: 20px;
+    }
+
+    .task-container label {
+        font-size: 1.2em;
+        margin-bottom: 10px;
+    }
+
+    .task-container input[type="text"] {
+        width: 100%;
+        padding: 10px;
+        font-size: 1em;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        margin-bottom: 20px;
+    }
+
+    .task-container button {
+        padding: 10px 20px;
+        font-size: 1em;
+        color: #fff;
+        background-color: #007bff;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+    .task-container button:hover {
+        background-color: #0056b3;
+    }
+
+    .feedback, .motivational-phrase, .score {
+        margin-top: 20px;
+        font-size: 1.1em;
+        text-align: center;
+    }
+
+    .feedback {
+        color: #28a745;
+    }
+
+    .motivational-phrase {
+        color: #17a2b8;
+    }
+
+    .score {
+        color: #6c757d;
+    }
+</style>
+
+<div class="task-container">
+    <h1>Опишите действия на изображениях</h1>
+    <form method="post" onsubmit="submitAnswer(event)">
+        {% csrf_token %}
+        <div id="task-details">
+            <img id="task-image" src="{{ task.data.questions.0.image.url }}" alt="Task Image"><br>
+            <label for="answer">Что делает {{ task.data.questions.0.person }}?</label>
+            <input type="text" id="answer" name="answer">
+            <input type="hidden" name="task_id" value="{{ task.id }}">
+        </div>
+        <button type="submit">Проверить ответ</button>
+    </form>
+    <p class="feedback" id="feedback"></p>
+    <p class="motivational-phrase" id="motivational_phrase"></p>
+    <p class="score" id="score">Общий счет: 0</p>
+</div>
+
+<script>
+    // Переменная для хранения общего счета
+    let totalScore = 0;
+
+    function submitAnswer(event) {
+        event.preventDefault();
+        const answer = document.getElementById('answer').value;
+        const csrfToken = '{{ csrf_token }}';
+
+        fetch(window.location.href, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken,
+            },
+            body: JSON.stringify({ answer: answer }),
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok ' + response.statusText);
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.error) {
+                document.getElementById('feedback').innerText = data.error;
+                return;
+            }
+            document.getElementById('feedback').innerText = data.feedback;
+            document.getElementById('motivational_phrase').innerText = data.motivational_phrase || '';
+
+            // Обновляем общий счет
+            if (data.total_score !== undefined) {
+                totalScore = data.total_score;
+                document.getElementById('score').innerText = `Общий счет: ${totalScore}`;
+            }
+
+            if (data.next_image_data) {
+                document.getElementById('task-image').src = data.next_image_data.image_url;
+                document.querySelector('label[for="answer"]').innerText = `Что делает ${data.next_image_data.person}?`;
+                document.getElementById('answer').value = '';
+            } else {
+                document.getElementById('task-details').innerHTML = '<p>Все задания выполнены.</p>';
+            }
+        })
+        .catch(error => {
+            console.error('There was a problem with the fetch operation:', error);
+            document.getElementById('feedback').innerText = 'Произошла ошибка. Пожалуйста, попробуйте снова.';
+        });
+    }
+</script>
+{% endblock %}

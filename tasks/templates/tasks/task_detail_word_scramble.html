@@ -1,0 +1,69 @@
+<!-- tasks/templates/tasks/task_detail_word_scramble.html -->
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="text-center mb-4">Unscramble the Word</h1>
+    <div class="current-score">
+        <p>Current score for today: {{ daily_score }}</p>
+    </div>
+    <div id="task-container">
+        <p>Scrambled Word: <strong>{{ scrambled_word }}</strong></p>
+        <form id="answer-form">
+            <input type="text" name="answer" required>
+            <button type="submit">Check</button>
+        </form>
+        <div id="feedback" style="display:none;"></div>
+        <div id="motivational-phrase" style="display:none;"></div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('answer-form');
+    const feedbackDiv = document.getElementById('feedback');
+    const taskContainer = document.getElementById('task-container');
+    const motivationalDiv = document.getElementById('motivational-phrase');
+
+    form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const formData = new FormData(form);
+        const answer = formData.get('answer');
+
+        fetch(window.location.href, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}',
+            },
+            body: JSON.stringify({ answers: [answer] })  // Исправлено на 'answers' для соответствия views.py
+        })
+        .then(response => response.json())
+        .then(data => {
+            feedbackDiv.innerText = data.feedback;
+            feedbackDiv.style.display = 'block';
+
+            if (data.motivational_phrase) {
+                motivationalDiv.innerText = data.motivational_phrase;
+                motivationalDiv.style.display = 'block';
+            }
+
+            if (data.finished) {
+                setTimeout(() => {
+                    window.location.href = '{% url "tasks:task_list" %}';
+                }, 3000); // 3 секунды задержки перед перенаправлением на список заданий
+            } else {
+                setTimeout(() => {
+                    window.location.reload();
+                }, 3000); // 3 секунды задержки перед загрузкой следующего задания
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            feedbackDiv.innerText = 'Ошибка при отправке запроса';
+            feedbackDiv.style.display = 'block';
+        });
+    });
+});
+</script>
+{% endblock %}

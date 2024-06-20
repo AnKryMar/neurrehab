@@ -1,0 +1,35 @@
+<!-- tasks/templates/tasks/task_detail.html -->
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Детали задания</title>
+</head>
+<body>
+    <h1>Категория: {{ task.category }}</h1>
+    <p id="generated-word">Слово: "правильное слово"</p> <!-- Здесь должно быть сгенерированное слово -->
+    <input type="text" id="user-input" placeholder="Введите слово">
+    <button onclick="submitAnswer()">Проверить</button>
+    <p id="feedback"></p>
+
+    <script>
+        function submitAnswer() {
+            const userInput = document.getElementById('user-input').value;
+            const csrfToken = '{{ csrf_token }}';
+
+            fetch(window.location.href, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken,
+                },
+                body: JSON.stringify({ answer: userInput }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('feedback').innerText = data.feedback;
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,128 @@
+<!-- tasks/templates/tasks/task_list.html -->
+{% extends 'base.html' %}
+
+{% block title %}Task List{% endblock %}
+
+{% block content %}
+<style>
+    body {
+        background-color: #f8f9fa; /* Light background for the whole page */
+        color: #333; /* Normal color for text */
+    }
+
+    .container {
+        max-width: 1200px;
+        margin: auto;
+    }
+
+    .card {
+        display: flex;
+        flex-direction: column;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        transition: transform 0.2s, box-shadow 0.2s;
+        margin-bottom: 30px; /* Space between cards */
+    }
+
+    .card:hover {
+        transform: translateY(-5px); /* Lift effect on hover */
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Stronger shadow on hover */
+    }
+
+    .card-header {
+        background-color: #007bff;
+        color: #fff;
+        border-top-left-radius: 10px;
+        border-top-right-radius: 10px;
+        padding: 15px;
+    }
+
+    .card-title {
+        margin: 0;
+        font-size: 1.5rem;
+    }
+
+    .card-body {
+        padding: 15px;
+        background-color: #ffffff;
+        flex-grow: 1;
+    }
+
+    .list-group-item {
+        border: none;
+        border-bottom: 1px solid #ddd; /* Divider between list items */
+        padding: 10px 15px;
+        transition: background-color 0.2s;
+    }
+
+    .list-group-item:last-child {
+        border-bottom: none; /* Remove bottom border from the last item */
+    }
+
+    .list-group-item:hover {
+        background-color: #f1f1f1;
+    }
+
+    .list-group-item a {
+        color: #007bff; /* Default link color */
+        font-weight: 500;
+        text-decoration: none; /* Remove underline */
+    }
+
+    .list-group-item a:hover {
+        color: #0056b3; /* Darker shade on hover */
+    }
+
+    .alert-info {
+        background-color: #d9edf7;
+        color: #31708f;
+        border-color: #bce8f1;
+        border-radius: 5px;
+    }
+
+    h1 {
+        font-weight: 700;
+        color: #333;
+    }
+</style>
+<div class="container mt-5">
+    <h1 class="text-center mb-4">Task List</h1>
+    {% if tasks_by_type %}
+    <div class="row row-cols-1 row-cols-md-2 g-4">
+        {% for task_type, tasks in tasks_by_type.items %}
+        <div class="col">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">{{ task_type|title }}</h2>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group">
+                        {% if task_type != 'action_description' %}
+                            {% for task in tasks %}
+                            <li class="list-group-item">
+                                <a href="{% url 'tasks:task_detail' category=task.category task_type=task.task_type %}" class="text-decoration-none">
+                                    {{ task.category_name }}
+                                </a>
+                            </li>
+                            {% endfor %}
+                        {% else %}
+                            <!-- Для action_description категории не нужны -->
+                            <li class="list-group-item">
+                                <a href="{% url 'tasks:task_detail' category='none' task_type=task_type %}" class="text-decoration-none">
+                                    Начать
+                                </a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="alert alert-info" role="alert">
+        No tasks available.
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

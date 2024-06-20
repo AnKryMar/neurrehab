@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div id="image-match-task-container" class="image-match-container">
+    <h2 class="image-match-title">Соответствие изображений словам</h2>
+
+    <div class="image-match-task-item">
+        <img id="image-match-task-image" src="{{ combined_list.0.0 }}" alt="Изображение" class="image-match-responsive-image">
+        <select id="image-match-task-select" class="image-match-select-box" data-correct-word="{{ combined_list.0.2 }}">
+            <option value="" disabled selected>Выберите {{ category_name }}</option>
+            {% for choice in combined_list.0.1 %}
+            <option value="{{ choice }}">{{ choice }}</option>
+            {% endfor %}
+        </select>
+        <button id="image-match-submit-btn" class="image-match-button" onclick="submitAnswer()">Ответить</button>
+        <div id="image-match-feedback-container" class="image-match-feedback"></div>
+        <button id="image-match-next-btn" class="image-match-button" onclick="loadNextImage()" style="display:none;">Следующая картинка</button>
+    </div>
+</div>
+
+<style>
+    .image-match-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 20px;
+    }
+
+    .image-match-title {
+        font-size: 24px;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+
+    .image-match-task-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        max-width: 400px;
+        width: 100%;
+        background: #fff;
+        padding: 20px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+    }
+
+    .image-match-responsive-image {
+        width: 100%;
+        height: auto;
+        border-radius: 8px;
+        margin-bottom: 20px;
+    }
+
+    .image-match-select-box {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 20px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 16px;
+    }
+
+    .image-match-button {
+        padding: 10px 20px;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+        font-size: 16px;
+        cursor: pointer;
+        margin-bottom: 10px;
+    }
+
+    .image-match-button:hover {
+        background-color: #0056b3;
+    }
+
+    .image-match-feedback {
+        font-size: 16px;
+        margin-top: 10px;
+        text-align: center;
+    }
+</style>
+
+<script>
+    function submitAnswer() {
+        const selectElement = document.getElementById('image-match-task-select');
+        const selectedAnswer = selectElement.value;
+        const correctWord = selectElement.getAttribute('data-correct-word');
+
+        fetch("{% url 'tasks:task_detail' category=task.category task_type=task.task_type %}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({
+                answer: selectedAnswer,
+                correct_word: correctWord
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            const feedbackContainer = document.getElementById('image-match-feedback-container');
+            feedbackContainer.innerHTML = `
+                <p>${data.feedback}</p>
+                ${data.motivational_phrase ? `<p>${data.motivational_phrase}</p>` : ''}
+                <p>Ваш текущий счет: ${data.daily_score}</p>
+            `;
+
+            if (data.next_image_data) {
+                // Обновляем изображение и варианты выбора
+                document.getElementById('image-match-task-image').src = data.next_image_data.image_url;
+                const selectElement = document.getElementById('image-match-task-select');
+                selectElement.setAttribute('data-correct-word', data.next_image_data.correct_word);
+                selectElement.innerHTML = '<option value="" disabled selected>Выберите {{ category_name }}</option>';
+                data.next_image_data.choices.forEach(choice => {
+                    const option = document.createElement('option');
+                    option.value = choice;
+                    option.textContent = choice;
+                    selectElement.appendChild(option);
+                });
+
+                // Скрываем кнопку "Следующая картинка"
+                document.getElementById('image-match-next-btn').style.display = 'none';
+            } else {
+                // Если больше нет изображений, показываем уведомление и скрываем кнопку ответа
+                feedbackContainer.innerHTML += '<p>Больше нет изображений.</p>';
+                document.getElementById('image-match-submit-btn').style.display = 'none';
+                document.getElementById('image-match-task-select').style.display = 'none';
+                document.getElementById('image-match-task-image').style.display = 'none';
+            }
+        })
+        .catch(error => {
+            console.error('Ошибка:', error);
+        });
+    }
+</script>
+{% endblock %}
