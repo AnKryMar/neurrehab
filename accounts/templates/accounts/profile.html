@@ -1,0 +1,204 @@
+<!-- accounts/templates/accounts/profile.html -->
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<style>
+/* Встроенные стили для профиля */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f9f9f9;
+    margin: 0;
+    padding: 0;
+}
+
+.profile-container {
+    display: flex;
+    max-width: 1200px;
+    margin: 50px auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.sidebar {
+    width: 200px;
+    padding: 20px;
+    background-color: #f4f4f4;
+    border-right: 1px solid #ddd;
+}
+
+.sidebar a {
+    display: block;
+    padding: 10px;
+    text-decoration: none;
+    color: black;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+.sidebar a:hover {
+    background-color: #ddd;
+}
+
+.profile-content {
+    flex-grow: 1;
+    padding: 20px;
+}
+
+.profile-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.profile-header img {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 20px;
+}
+
+.profile-header .profile-info {
+    flex-grow: 1;
+}
+
+.profile-header .profile-info h2 {
+    margin: 0;
+    color: #333;
+}
+
+.profile-header .profile-info p {
+    margin: 5px 0;
+    color: #666;
+}
+
+.profile-form {
+    display: flex;
+    flex-direction: column;
+}
+
+.profile-form input[type="text"],
+.profile-form input[type="email"],
+.profile-form input[type="password"],
+.profile-form input[type="date"],
+.profile-form input[type="file"],
+.profile-form select,
+.profile-form textarea {
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.profile-form button {
+    padding: 10px;
+    background-color: #4CAF50;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.profile-form button:hover {
+    background-color: #45a049;
+}
+
+.change-password-link {
+    display: inline-block;
+    margin-top: 15px;
+    padding: 10px 20px;
+    background-color: #007BFF;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+.change-password-link:hover {
+    background-color: #0056b3;
+}
+
+@media (max-width: 600px) {
+    .profile-container {
+        flex-direction: column;
+        margin: 20px;
+        padding: 15px;
+    }
+
+    .profile-header {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .profile-header img {
+        margin-bottom: 10px;
+    }
+
+    .profile-header .profile-info {
+        text-align: center;
+    }
+}
+</style>
+
+<div class="profile-container">
+    <div class="sidebar">
+        <a href="{% url 'profile' %}">Профиль</a>
+        <a href="{% url 'tasks:task_list' %}">Список заданий</a>
+        <a href="{% url 'tasks:profile_statistics' %}" class="btn btn-primary">Посмотреть статистику</a>
+        <!-- Другие ссылки можно добавить здесь -->
+    </div>
+    <div class="profile-content">
+        <div class="profile-header">
+            {% if user.avatar %}
+                <img src="{{ user.avatar.url }}" alt="Аватар пользователя">
+            {% else %}
+                <img src="{% static 'default-avatar.png' %}" alt="Аватар по умолчанию">
+            {% endif %}
+            <div class="profile-info">
+                <h2>{{ user.first_name }} {{ user.last_name }}</h2>
+                <p>{{ user.email }}</p>
+            </div>
+        </div>
+        <form method="post" enctype="multipart/form-data" class="profile-form">
+            {% csrf_token %}
+
+            {{ form.non_field_errors }}
+
+            <!-- Вручную отображаем поля формы -->
+            <div class="form-group">
+                {{ form.first_name.label_tag }} {{ form.first_name }}
+            </div>
+            <div class="form-group">
+                {{ form.last_name.label_tag }} {{ form.last_name }}
+            </div>
+            <div class="form-group">
+                {{ form.middle_name.label_tag }} {{ form.middle_name }}
+            </div>
+            <div class="form-group">
+                {{ form.birth_date.label_tag }} {{ form.birth_date }}
+            </div>
+            <div class="form-group">
+                {{ form.phone_number.label_tag }} {{ form.phone_number }}
+            </div>
+            <div class="form-group">
+                {{ form.country.label_tag }} {{ form.country }}
+            </div>
+            <div class="form-group">
+                {{ form.city.label_tag }} {{ form.city }}
+            </div>
+            <div class="form-group">
+                <label for="{{ form.avatar.id_for_label }}">Загрузить новый аватар</label>
+                <input type="file" name="{{ form.avatar.name }}" class="form-control-file" id="{{ form.avatar.id_for_label }}">
+            </div>
+
+            <button type="submit">Сохранить изменения</button>
+        </form>
+        <a href="{% url 'password_change' %}" class="change-password-link">Изменить пароль</a>
+    </div>
+</div>
+{% endblock %}

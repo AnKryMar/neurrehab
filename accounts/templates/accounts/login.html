@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block styles %}
+<style>
+    .card {
+        background-color: #fff !important; /* Белый фон для карточки */
+        color: #000 !important; /* Черный текст для карточки */
+    }
+
+    .card-header {
+       /* background-color: #007bff !important; Цвет заголовка карточки */
+        color: #000 !important; /* Белый текст для заголовка */
+    }
+
+    .form-control {
+        background-color: #f8f9fa !important; /* Фон для элементов формы */
+        color: #495057 !important;
+    }
+
+    .btn-primary {
+        background-color: #007bff !important;
+        border-color: #007bff !important;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header text-center">
+                    <h2>Войти</h2>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        {% csrf_token %}
+                        {% if next %}
+                            <input type="hidden" name="next" value="{{ next }}">
+                        {% endif %}
+                        <div class="form-group">
+                            <label for="id_login">Электронная почта:</label>
+                            <input type="text" name="username" required id="id_login" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="id_password">Пароль:</label>
+                            <input type="password" name="password" required id="id_password" class="form-control">
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block mt-3">Войти</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
