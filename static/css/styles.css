@@ -1,0 +1,71 @@
+body {
+    background-color: #f4f4f4;
+    color: #333;
+    font-family: 'Arial, sans-serif';
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+header {
+    background-color: #282c34;
+    color: white;
+    padding: 10px 20px;
+    position: fixed;
+    width: 100%;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+nav a {
+    color: white;
+    text-decoration: none;
+    margin: 0 10px;
+}
+
+nav a:hover {
+    text-decoration: underline;
+}
+
+main {
+    flex: 1;
+    padding: 70px 20px 20px 20px;
+    overflow-x: hidden;
+}
+
+footer {
+    background-color: #282c34;
+    color: white;
+    text-align: center;
+    padding: 10px 20px;
+    width: 100%;
+}
+
+/* Стили для плавающей кнопки переключения тем */
+.theme-toggle-button {
+    background-color: #f0f0f0;
+}
+
+.theme-toggle-button .fa {
+    color: #333;
+}
+
+/* Стили для кнопок входа, регистрации и выхода */
+.nav-link.button {
+    color: white;
+    text-decoration: none;
+    margin: 0 10px;
+    padding: 8px 16px;
+    border-radius: 4px;
+    background-color: #007bff;
+    transition: background-color 0.3s;
+}
+
+.nav-link.button:hover {
+    background-color: #0056b3;
+}

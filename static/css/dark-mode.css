@@ -1,0 +1,46 @@
+body {
+    background-color: #121212;
+    color: #e0e0e0;
+}
+
+header {
+    background-color: #1f1f1f;
+    color: white;
+}
+
+footer {
+    background-color: #1f1f1f;
+    color: white;
+}
+
+/* Обновленные стили для плавающей кнопки переключения тем */
+.theme-toggle-button {
+    background-color: #333;
+}
+
+.theme-toggle-button .fa {
+    color: #f0f0f0;
+}
+
+/* Стили для кнопок в темной теме */
+.nav-link.button {
+    background-color: #0056b3;
+}
+
+.nav-link.button:hover {
+    background-color: #003f8a;
+}
+
+/* Пример изменения других элементов */
+main {
+    background-color: #1e1e1e;
+    color: #e0e0e0; /* Светлый цвет текста для темной темы */
+}
+
+a {
+    color: #bb86fc;
+}
+
+a:hover {
+    color: #3700b3;
+}
